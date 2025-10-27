@@ -14,8 +14,11 @@ OUT := conv_stride
 
 .PHONY: all clean
 
-mac: $(MAC)
-all: $(OUT)
+ifeq ($(shell uname -s),Darwin)
+	mac: $(MAC)
+else
+	all: $(OUT)
+endif
 
 
 $(OUT): $(SRC) src/main.c
