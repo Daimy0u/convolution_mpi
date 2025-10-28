@@ -14,16 +14,11 @@ OUT := conv_stride
 
 .PHONY: all clean
 
-<<<<<<< HEAD
 ifeq ($(shell uname -s),Darwin)
 	mac: $(MAC)
 else
 	all: $(OUT)
 endif
-=======
-mac: $(MAC)
-all: $(OUT)
->>>>>>> b338e48 (init: cloned local changes to a git)
 
 
 $(OUT): $(SRC) src/main.c
