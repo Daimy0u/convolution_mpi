@@ -1,5 +1,7 @@
 #include "conv.h"
 #include <omp.h>
+#include <stdlib.h>
+#include <string.h>
 
 static inline float apply_window(const float* __restrict__ input_data,
                                  const float* __restrict__ kernel_data,
