@@ -58,3 +58,4 @@ dkms.conf
 
 # debug information files
 *.dwo
+conv_stride
