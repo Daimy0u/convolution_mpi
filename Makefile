@@ -1,8 +1,13 @@
-SETCC := export OMPI_CC=gcc-15;
+UNAME_S := $(shell uname)
 
 MPICC := mpicc
 CC := gcc
-MAC_CC := gcc-15
+
+ifeq ($(UNAME_S),Darwin)
+GCC_BREW := gcc-15
+MPICC := OMPI_CC=$(GCC_BREW) mpicc
+CC := $(GCC_BREW)
+endif
 
 CFLAGS := -std=c11 -O3 -march=native -Wno-unused-result -I./include -fopenmp -D_POSIX_C_SOURCE=200112L
 LDLIBS := -lm
@@ -14,19 +19,10 @@ OUT := conv_stride
 
 .PHONY: all clean
 
-ifeq ($(shell uname -s),Darwin)
-	mac: $(MAC)
-else
-	all: $(OUT)
-endif
-
+all: $(OUT)
 
 $(OUT): $(SRC) src/main.c
 	$(MPICC) $(CFLAGS) $(SRC) src/main.c -o $(OUT) $(LDLIBS)
-
-mac: $(SRC) src/main.c
-	$(SETCC) $(MPICC) $(CFLAGS) $(SRC) src/main.c -o $(OUT) $(LDLIBS)
-
 
 clean:
 	-rm -f $(OUT)
