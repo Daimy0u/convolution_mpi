@@ -1,5 +1,8 @@
 tmp/*
+*.txt
 **/conv_*.txt
+./conv_stride
+
 # Prerequisites
 *.d
 
