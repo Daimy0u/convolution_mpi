@@ -1,7 +1,5 @@
 #include "conv.h"
 #include <omp.h>
-#include <string.h>
-#include <math.h>
 
 static inline float apply_window(const float* __restrict__ input_data,
                                  const float* __restrict__ kernel_data,
@@ -42,32 +40,33 @@ void conv_openmp(ConvParams* params) {
     const uint32_t input_offset = params->input_offset_row;
     const uint32_t output_offset = params->output_offset_row;
     
-    const uint32_t slots = out_H * out_W;
-    
+    const float* kernel = params->kernel;
+
     #pragma omp parallel
     {
         float* local_kernel = (float*)malloc(kH * kW * sizeof(float));
         if (local_kernel) {
             memcpy(local_kernel, params->kernel, kH * kW * sizeof(float));
         }
-        
+
         #pragma omp for schedule(static)
-        for (uint32_t slot = 0; slot < slots; slot++) {
-            const uint32_t out_row = slot / out_W;
-            const uint32_t out_col = slot % out_W;
-            
+        for (uint32_t out_row = 0; out_row < out_H; ++out_row) {
             const uint32_t row_center = (out_row + output_offset) * sH - input_offset;
-            const uint32_t col_center = out_col * sW;
-            
+            float* output_row = params->output + out_row * out_W;
             float* kernel_data = local_kernel ? local_kernel : params->kernel;
-            float value = apply_window(
-                params->data, kernel_data,
-                H, W, row_center, col_center, kH, kW
-            );
-            
-            params->output[slot] = value;
+            uint32_t col_center = 0;
+
+            for (uint32_t out_col = 0; out_col < out_W; ++out_col) {
+                float value = apply_window(
+                    params->data, kernel_data,
+                    H, W, row_center, col_center, kH, kW
+                );
+
+                output_row[out_col] = value;
+                col_center += sW;
+            }
         }
-        
+
         if (local_kernel) {
             free(local_kernel);
         }
